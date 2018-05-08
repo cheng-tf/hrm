@@ -8,6 +8,7 @@
 .idea/*
 *.iml
 #*git*
+log.info.location_IS_UNDEFINED
 hrm-*/.settings
 hrm-*/target
 hrm-*/bin
