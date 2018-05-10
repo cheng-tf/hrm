@@ -12,7 +12,7 @@
 	<context:component-scan base-package="cn.edu.bupt.opensource.hrm.*" />
 
 	<!-- 引入properties配置文件 -->
-	<context:property-placeholder location="classpath:properties/log4j.properties" />
+	<!--<context:property-placeholder location="classpath:properties/*.properties" />-->
 
 	<!-- 引入XML配置文件 -->
 	<import resource="classpath:spring/spring-*.xml"/>

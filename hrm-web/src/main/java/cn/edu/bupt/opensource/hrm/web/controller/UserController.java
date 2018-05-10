@@ -36,7 +36,8 @@ public class UserController {
 	 * @return 跳转的视图
 	 * */
 	@RequestMapping(value="/login")
-	 public ModelAndView login(@RequestParam("loginname") String loginname,
+	 public ModelAndView login(
+	 		@RequestParam("loginname") String loginname,
 			 @RequestParam("password") String password,
 			 HttpSession session,
 			 ModelAndView mv){

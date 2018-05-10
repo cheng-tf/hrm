@@ -22,7 +22,7 @@ import java.util.Map;
  * @author ChengTengfei
  * @version 1.0
  */
-@Transactional(propagation= Propagation.REQUIRED,isolation= Isolation.DEFAULT)
+@Transactional(propagation= Propagation.REQUIRED, isolation= Isolation.DEFAULT)
 @Service("hrmService")
 public class HrmServiceImpl implements HrmService {
 
@@ -49,7 +49,7 @@ public class HrmServiceImpl implements HrmService {
      * HrmServiceImpl接口login方法实现
      *  @see { HrmService }
      * */
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     @Override
     public User login(String loginname, String password) {
 //		System.out.println("HrmServiceImpl login -- >>");
@@ -60,7 +60,7 @@ public class HrmServiceImpl implements HrmService {
      * HrmServiceImpl接口findUser方法实现
      * @see { HrmService }
      * */
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     @Override
     public List<User> findUser(User user, PageModel pageModel) {
         /** 当前需要分页的总数据条数  */
@@ -81,7 +81,7 @@ public class HrmServiceImpl implements HrmService {
      * HrmServiceImpl接口findUserById方法实现
      * @see { HrmService }
      * */
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     @Override
     public User findUserById(Integer id) {
         return userDao.selectById(id);
@@ -118,7 +118,7 @@ public class HrmServiceImpl implements HrmService {
     }
 
     /*****************部门服务接口实现*************************************/
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     @Override
     public List<Dept> findAllDept() {
 
@@ -129,7 +129,7 @@ public class HrmServiceImpl implements HrmService {
      * HrmServiceImpl接口findDept方法实现
      * @see { HrmService }
      * */
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     @Override
     public List<Dept> findDept(Dept dept,PageModel pageModel) {
         /** 当前需要分页的总数据条数  */
@@ -192,7 +192,7 @@ public class HrmServiceImpl implements HrmService {
      * HrmService接口findEmployee方法实现
      * @see { HrmService }
      * */
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     @Override
     public List<Employee> findEmployee(Employee employee, PageModel pageModel) {
         /** 当前需要分页的总数据条数  */

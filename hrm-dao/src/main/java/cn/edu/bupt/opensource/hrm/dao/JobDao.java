@@ -21,11 +21,25 @@ import static cn.edu.bupt.opensource.hrm.common.util.contant.HrmConstants.JOBTAB
  */
 public interface JobDao {
 
-    @Select("select * from "+JOBTABLE+" where ID = #{id}")
+    // 根据ID查询职位
+    @Select("select * from " + JOBTABLE + " where ID = #{id}")
     Job selectById(int id);
 
-    @Select("select * from "+JOBTABLE+" ")
+    // 查询所有职位
+    @Select("select * from " + JOBTABLE + " ")
     List<Job> selectAllJob();
+
+    // 根据ID删除部门
+    @Delete(" delete from "+JOBTABLE+" where id = #{id} ")
+    void deleteById(Integer id);
+
+    // 插入职位
+    @SelectProvider(type=JobDynaSqlProvider.class,method="insertJob")
+    void save(Job job);
+
+    // 修改职位
+    @SelectProvider(type=JobDynaSqlProvider.class,method="updateJob")
+    void update(Job job);
 
     // 动态查询
     @SelectProvider(type=JobDynaSqlProvider.class,method="selectWhitParam")
@@ -33,17 +47,4 @@ public interface JobDao {
 
     @SelectProvider(type=JobDynaSqlProvider.class,method="count")
     Integer count(Map<String, Object> params);
-
-    // 根据ID删除部门
-    @Delete(" delete from "+JOBTABLE+" where id = #{id} ")
-    void deleteById(Integer id);
-
-    // 动态插入部门
-    @SelectProvider(type=JobDynaSqlProvider.class,method="insertJob")
-    void save(Job job);
-
-    // 动态修改用户
-    @SelectProvider(type=JobDynaSqlProvider.class,method="updateJob")
-    void update(Job job);
-
 }

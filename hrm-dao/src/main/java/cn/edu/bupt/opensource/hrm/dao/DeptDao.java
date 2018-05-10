@@ -21,6 +21,22 @@ import static cn.edu.bupt.opensource.hrm.common.util.contant.HrmConstants.DEPTTA
  */
 public interface DeptDao {
 
+    // 根据ID查询部门
+    @Select("select * from " + DEPTTABLE + " where ID = #{id}")
+    Dept selectById(int id);
+
+    // 根据ID删除部门
+    @Delete(" delete from " + DEPTTABLE + " where id = #{id} ")
+    void deleteById(Integer id);
+
+    // 插入部门
+    @SelectProvider(type=DeptDynaSqlProvider.class,method="insertDept")
+    void save(Dept dept);
+
+    // 修改部门
+    @SelectProvider(type=DeptDynaSqlProvider.class,method="updateDept")
+    void update(Dept dept);
+
     // 动态查询
     @SelectProvider(type=DeptDynaSqlProvider.class,method="selectWhitParam")
     List<Dept> selectByPage(Map<String, Object> params);
@@ -30,20 +46,5 @@ public interface DeptDao {
 
     @Select("select * from "+DEPTTABLE+" ")
     List<Dept> selectAllDept();
-
-    @Select("select * from "+DEPTTABLE+" where ID = #{id}")
-    Dept selectById(int id);
-
-    // 根据ID删除部门
-    @Delete(" delete from "+DEPTTABLE+" where id = #{id} ")
-    void deleteById(Integer id);
-
-    // 动态插入部门
-    @SelectProvider(type=DeptDynaSqlProvider.class,method="insertDept")
-    void save(Dept dept);
-
-    // 动态修改用户
-    @SelectProvider(type=DeptDynaSqlProvider.class,method="updateDept")
-    void update(Dept dept);
 
 }

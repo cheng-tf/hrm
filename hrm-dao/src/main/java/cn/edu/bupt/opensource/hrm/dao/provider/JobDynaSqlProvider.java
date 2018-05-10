@@ -16,6 +16,7 @@ import static cn.edu.bupt.opensource.hrm.common.util.contant.HrmConstants.JOBTAB
  * @version 1.0
  */
 public class JobDynaSqlProvider {
+
     // 分页动态查询
     public String selectWhitParam(Map<String, Object> params){
         String sql =  new SQL(){
