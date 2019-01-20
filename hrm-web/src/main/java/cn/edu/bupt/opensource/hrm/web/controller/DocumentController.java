@@ -79,7 +79,7 @@ public class DocumentController {
 			try(InputStream inputStream = file.getInputStream()) {
 				ExcelProcessingListener listener = new ExcelProcessingListener();
 				ExcelReader reader;
-				if("XLSX".equalsIgnoreCase(fileSuffix)) {
+				if(ExcelTypeEnum.XLSX.getValue().equalsIgnoreCase(fileSuffix)) {
 					reader = new ExcelReader(inputStream, ExcelTypeEnum.XLSX, null, listener);
 				} else {
 					reader = new ExcelReader(inputStream, ExcelTypeEnum.XLS, null, listener);
