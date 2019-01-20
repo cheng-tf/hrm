@@ -30,13 +30,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-/**   
- * @Description: 处理上传下载文件请求控制器
- * <br>网站：<a href="http://www.fkit.org">疯狂Java</a> 
- * @author 肖文吉	36750064@qq.com   
- * @version V1.0   
+/**
+ * @author chengtf
+ * @date 2019/1/20
  */
-
 @Controller
 public class DocumentController {
 
