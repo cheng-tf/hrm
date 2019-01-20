@@ -24,8 +24,7 @@
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close"/>
 
 	<!-- 配置SqlSessionFactory，使用Spring管理 -->
-	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
-		  p:dataSource-ref="dataSource"/>
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" p:dataSource-ref="dataSource"/>
 
 	<!-- DAO接口扫描-->
 	<mybatis:scan base-package="cn.edu.bupt.opensource.hrm.dao"/>

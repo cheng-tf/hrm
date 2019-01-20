@@ -3,11 +3,16 @@ package cn.edu.bupt.opensource.hrm.web.controller;
 import cn.edu.bupt.opensource.hrm.common.util.contant.HrmConstants;
 import cn.edu.bupt.opensource.hrm.common.util.tag.PageModel;
 import cn.edu.bupt.opensource.hrm.domain.pojo.Document;
+import cn.edu.bupt.opensource.hrm.domain.pojo.PersonModel;
 import cn.edu.bupt.opensource.hrm.domain.pojo.User;
 import cn.edu.bupt.opensource.hrm.service.HrmService;
+import cn.edu.bupt.opensource.hrm.web.listener.ExcelProcessingListener;
+import com.alibaba.excel.ExcelReader;
+import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,10 +21,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**   
@@ -32,14 +40,11 @@ import java.util.List;
 @Controller
 public class DocumentController {
 
-	/**
-	 * 自动注入UserService
-	 * */
-	@Autowired
-	@Qualifier("hrmService")
+	private static Logger log = LoggerFactory.getLogger(DocumentController.class);
+
+	@Resource
 	private HrmService hrmService;
-	
-	
+
 	/**
 	 * 处理/login请求
 	 * */
@@ -73,24 +78,31 @@ public class DocumentController {
 		if(flag.equals("1")){
 			mv.setViewName("document/showAddDocument");
 		}else{
-			// 上传文件路径
-			String path = session.getServletContext().getRealPath(
-	                "/upload/");
-			System.out.println(path);
-			// 上传文件名
+			// 获取上传文件
+			MultipartFile file = document.getFile();
+			String originName = file.getOriginalFilename();
+			String fileSuffix = originName.substring(originName.lastIndexOf(".") + 1).toUpperCase();
+			try(InputStream inputStream = file.getInputStream()) {
+				ExcelProcessingListener listener = new ExcelProcessingListener();
+				ExcelReader reader;
+				if("XLSX".equalsIgnoreCase(fileSuffix)) {
+					reader = new ExcelReader(inputStream, ExcelTypeEnum.XLSX, null, listener);
+				} else {
+					reader = new ExcelReader(inputStream, ExcelTypeEnum.XLS, null, listener);
+				}
+				reader.read(new Sheet(1, 1, PersonModel.class));
+			} catch (Exception e) {
+				log.warn("读取文件失败，原因是：", e);
+			}
+			log.info("文件解析成功");
+			String path = session.getServletContext().getRealPath("/upload/");
+			log.info("上传文件的存储路径，path={}", path);
 			String fileName = document.getFile().getOriginalFilename();
-			 // 将上传文件保存到一个目标文件当中
 			document.getFile().transferTo(new File(path+File.separator+ fileName));
-			
-			// 插入数据库
-			// 设置fileName
 			document.setFileName(fileName);
-			// 设置关联的User对象
 			User user = (User) session.getAttribute(HrmConstants.USER_SESSION);
 			document.setUser(user);
-			// 插入数据库
 			hrmService.addDocument(document);
-			// 返回
 			mv.setViewName("redirect:/document/selectDocument");
 		}
 		// 返回
