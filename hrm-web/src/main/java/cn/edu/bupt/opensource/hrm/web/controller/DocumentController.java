@@ -46,7 +46,7 @@ public class DocumentController {
 	private HrmService hrmService;
 
 	/**
-	 * 处理/login请求
+	 * 处理login请求
 	 * */
 	@RequestMapping(value="/document/selectDocument")
 	 public String selectDocument(
@@ -56,7 +56,6 @@ public class DocumentController {
 		if(pageIndex != null){
 			pageModel.setPageIndex(pageIndex);
 		}
-		/** 查询用户信息     */
 		List<Document> documents = hrmService.findDocument(document, pageModel);
 		model.addAttribute("documents", documents);
 		model.addAttribute("pageModel", pageModel);
@@ -65,10 +64,8 @@ public class DocumentController {
 	}
 	
 	/**
-	 * 处理添加请求
-	 * @param  flag 标记， 1表示跳转到上传页面，2表示执行上传操作
-	 * @param  mv
-	 * */
+	 * 文档上传
+	 */
 	@RequestMapping(value="/document/addDocument")
 	 public ModelAndView addDocument(
 			 String flag,
@@ -78,10 +75,10 @@ public class DocumentController {
 		if(flag.equals("1")){
 			mv.setViewName("document/showAddDocument");
 		}else{
-			// 获取上传文件
 			MultipartFile file = document.getFile();
 			String originName = file.getOriginalFilename();
 			String fileSuffix = originName.substring(originName.lastIndexOf(".") + 1).toUpperCase();
+			// 解析Excel文件
 			try(InputStream inputStream = file.getInputStream()) {
 				ExcelProcessingListener listener = new ExcelProcessingListener();
 				ExcelReader reader;
@@ -91,10 +88,10 @@ public class DocumentController {
 					reader = new ExcelReader(inputStream, ExcelTypeEnum.XLS, null, listener);
 				}
 				reader.read(new Sheet(1, 1, PersonModel.class));
+				log.info("Excel文件解析成功");
 			} catch (Exception e) {
-				log.warn("读取文件失败，原因是：", e);
+				log.warn("Excel文件解析失败：{}", e);
 			}
-			log.info("文件解析成功");
 			String path = session.getServletContext().getRealPath("/upload/");
 			log.info("上传文件的存储路径，path={}", path);
 			String fileName = document.getFile().getOriginalFilename();
@@ -108,31 +105,44 @@ public class DocumentController {
 		// 返回
 		return mv;
 	}
-	
+
 	/**
-	 * 处理删除文档请求
-	 * @param  ids 需要删除的id字符串
-	 * @param  mv
+	 * 文档下载
+	 */
+	@RequestMapping(value="/document/downLoad")
+	public ResponseEntity<byte[]> downLoad(
+			Integer id,
+			HttpSession session) throws Exception{
+		Document target = hrmService.findDocumentById(id);
+		String fileName = target.getFileName();
+		String path = session.getServletContext().getRealPath("/upload/");
+		File file = new File(path+File.separator+ fileName);
+		HttpHeaders headers = new HttpHeaders();
+		// 下载显示的文件名，解决中文名称乱码问题
+		String downloadFielName = new String(fileName.getBytes("UTF-8"),"iso-8859-1");
+		// 通知浏览器以attachment（下载方式）打开图片
+		headers.setContentDispositionFormData("attachment", downloadFielName);
+		// application/octet-stream ： 二进制流数据（最常见的文件下载）。
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		// 201 HttpStatus.CREATED
+		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file), headers, HttpStatus.CREATED);
+	}
+
+	/**
+	 * 删除文档
 	 * */
 	@RequestMapping(value="/document/removeDocument")
 	 public ModelAndView removeDocument(String ids,ModelAndView mv){
-		// 分解id字符串
 		String[] idArray = ids.split(",");
 		for(String id : idArray){
-			// 根据id删除文档
 			hrmService.removeDocumentById(Integer.parseInt(id));
 		}
-		// 设置客户端跳转到查询请求
 		mv.setViewName("redirect:/document/selectDocument");
-		// 返回ModelAndView
 		return mv;
 	}
 	
 	/**
-	 * 处理修改文档请求
-	 * @param  flag 标记， 1表示跳转到修改页面，2表示执行修改操作
-	 * @param  document 要修改文档的对象
-	 * @param  mv
+	 * 修改文档
 	 * */
 	@RequestMapping(value="/document/updateDocument")
 	 public ModelAndView updateDocument(
@@ -140,48 +150,14 @@ public class DocumentController {
 			 @ModelAttribute Document document,
 			 ModelAndView mv){
 		if(flag.equals("1")){
-			// 根据id查询文档
 			Document target = hrmService.findDocumentById(document.getId());
-			// 设置Model数据
 			mv.addObject("document", target);
-			// 设置跳转到修改页面
 			mv.setViewName("document/showUpdateDocument");
 		}else{
-			// 执行修改操作
 			hrmService.modifyDocument(document);
-			// 设置客户端跳转到查询请求
 			mv.setViewName("redirect:/document/selectDocument");
 		}
-		// 返回
 		return mv;
-	}
-	
-	/**
-	 * 处理文档下载请求
-	 * */
-	@RequestMapping(value="/document/downLoad")
-	 public ResponseEntity<byte[]> downLoad(
-			 Integer id,
-			 HttpSession session) throws Exception{
-		// 根据id查询文档
-		Document target = hrmService.findDocumentById(id);
-		String fileName = target.getFileName();
-		// 上传文件路径
-		String path = session.getServletContext().getRealPath(
-                "/upload/");
-		// 获得要下载文件的File对象
-		File file = new File(path+File.separator+ fileName);
-		// 创建springframework的HttpHeaders对象
-		HttpHeaders headers = new HttpHeaders();
-        // 下载显示的文件名，解决中文名称乱码问题  
-        String downloadFielName = new String(fileName.getBytes("UTF-8"),"iso-8859-1");
-        // 通知浏览器以attachment（下载方式）打开图片
-        headers.setContentDispositionFormData("attachment", downloadFielName); 
-        // application/octet-stream ： 二进制流数据（最常见的文件下载）。
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-     // 201 HttpStatus.CREATED
-        return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
-                headers, HttpStatus.CREATED);
 	}
 	
 }
